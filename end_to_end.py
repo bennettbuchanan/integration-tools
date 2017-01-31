@@ -10,9 +10,6 @@ parser.add_option('-a', '--all', action='store_true', dest='output_all',
                   help='output the entire response from Integration')
 (options, args) = parser.parse_args()
 
-if not os.environ['CI_TOKEN']:
-    sys.exit('Environment variable CI_TOKEN not found.')
-
 def get_build_params(params):
     """Return a JSON object for the request data or exit the program if invalid
     arguments are given.
@@ -33,7 +30,7 @@ def get_request_output(req, output_all):
     """
     res = req.text[req.text.find('{'):]
     json_res = json.loads(res)
-    if json_res['message']:
+    if 'message' in json_res:
         return json_res['message']
     if output_all:
         return res
@@ -45,9 +42,14 @@ try:
 except IndexError:
     sys.exit('Please use the format repository_name:branch_name')
 
+try:
+    ci_token = os.environ['CI_TOKEN']
+except KeyError:
+    sys.exit('Environment variable CI_TOKEN not found.')
+
 # Use the ultron branch, with the default specified by the user.
-url = 'http://ci.ironmann.io/api/v1/project/scality/Integration/tree/ultron' + \
-    args[0] + '?circle-token=' + os.environ['CI_TOKEN']
+url = 'http://ci.ironmann.io/api/v1/project/scality/Integration/tree/' + \
+    'ultron/' + args[0] + '?circle-token=' + ci_token
 headers = {'Content-Type': 'application/json'}
 req = requests.post(url, data=data, headers=headers)
 

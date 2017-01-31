@@ -13,6 +13,9 @@ parser.add_option('-a', '--all', action='store_true', dest='output_all',
 def get_build_params(params):
     """Return a JSON object for the request data or exit the program if invalid
     arguments are given.
+
+    Keyword arguments:
+    params -- the parameters to run the Integration build.
     """
     data = {
         'build_parameters': {
@@ -25,11 +28,15 @@ def get_build_params(params):
             '_BRANCH'] = arr[1]
         return json.dumps(data)
 
-def get_request_output(req, output_all):
+def get_response_output(res, output_all):
     """Return the message for a failed or successful request.
+
+    Keyword arguments:
+    res -- the response object
+    output_all -- option to show entire response from Ultron.
     """
-    res = req.text[req.text.find('{'):]
-    json_res = json.loads(res)
+    data = res.text[res.text.find('{'):]
+    json_res = json.loads(data)
     if 'message' in json_res:
         return json_res['message']
     if output_all:
@@ -51,6 +58,6 @@ except KeyError:
 url = 'http://ci.ironmann.io/api/v1/project/scality/Integration/tree/' + \
     'ultron/' + args[0] + '?circle-token=' + ci_token
 headers = {'Content-Type': 'application/json'}
-req = requests.post(url, data=data, headers=headers)
+res = requests.post(url, data=data, headers=headers)
 
-sys.exit(get_request_output(req, options.output_all))
+sys.exit(get_response_output(res, options.output_all))

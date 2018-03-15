@@ -20,7 +20,8 @@ def get_build_params(params):
     try:
         data = {
             'build_parameters': {
-                'DEFAULT_BRANCH': params[0]
+                'DEFAULT_BRANCH': params[0],
+                'RUN_BACKBEAT_CRR_TESTS': 'True' # Do not disable backbeat tests
             }
         }
         for param in params[1:]:
